@@ -9,7 +9,7 @@ fn vert_main(@builtin(vertex_index) index: u32) -> VertexOutput
         vec2f(1,1),
         vec2f(1,-1),
         vec2f(-1,-1),
-        vec2f(1,-1),
+        vec2f(1,1),
         vec2f(-1,-1),
         vec2f(-1,1)
     );
