@@ -10,8 +10,10 @@ fn frag_main(input: VertexOutput) -> @location(0) vec4f
     var col = background(input_uv);
     var rect_col = vec4f(0.7,0.2,0.3,1.0);
     var flower_col = vec4f(0.3,0.3,0.5,1.0);
+    var polygon_col = vec4f(0.3,0.3,0.5,1.0);
     col =  mix(col,rect_col,rectangle(0.8,0.2,0.4,0.1,input_uv));
     col = mix(col,flower_col,flower(5,0.3,input_uv));
+    col = mix(col,polygon_col,polygon(5,0.3,input_uv));
     return col;
 }
 fn background(uv: vec2f) -> vec4f
@@ -40,4 +42,12 @@ fn flower(n: f32,amp: f32,uv: vec2f) -> f32
     var a = atan2(uv.x,uv.y);
     var f = amp*cos(n*a);
     return 1.0-smoothstep(f-0.005,f+0.005,r);
+}
+fn polygon(n: f32,amp: f32,uv: vec2f) -> f32
+{
+    var r = length(uv);
+    var a = atan2(uv.x,uv.y);
+    var angle = 6.28318530718/n;
+    var d = cos(floor(0.5+a/angle)*angle-a)*r-amp;
+    return 1.0-smoothstep(-0.01,0.01,d);
 }
