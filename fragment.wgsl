@@ -5,7 +5,7 @@ struct VertexOutput
 }
 struct Uniforms
 {
-    resolution: vec2f,
+    aspect: vec2f,
     time: f32,
     delta_time: f32
 }
@@ -13,7 +13,7 @@ struct Uniforms
 @fragment
 fn frag_main(input: VertexOutput) -> @location(0) vec4f
 {
-    var input_uv = input.ndc*u.resolution;
+    var input_uv = input.ndc*u.aspect;
     var col = background(input_uv);
     var rect_col = vec4f(0.7,0.2,0.3,1.0);
     var flower_col = vec4f(0.3,0.3,0.5,1.0);
@@ -81,4 +81,44 @@ fn noise(p: vec2f) -> f32
     var c = hash(i+vec2f(0.0,1.0)).x;
     var d = hash(i+vec2f(1.0,1.0)).x;
     return mix(mix(a,b,u.x),mix(c,d,u.x),u.y);
+}
+fn voronoi_cracks(p: vec2f) -> vec2f
+{
+    var cell = floor(p);
+    var frac = fract(p);
+    var v1 =vec2f(0.0);
+    var v2 = vec2f(0,0);
+    var min_dis = 1000.0;
+    for(var i = -1;i<=1;i++)
+    {
+        for(var j = -1;j<=1;j++)
+        {
+            var offset = vec2f(f32(j),f32(i));
+            var point = hash(cell+offset);
+            var diff = offset + point - frac;
+            var dis = dot(diff,diff);
+            if(dis<min_dis)
+            {
+                min_dis = dis;
+                v2 = diff;
+                v1 = offset;
+            }
+        }
+    }
+    var edge_dis = 1000.0;
+    for(var i = -1;i<=1;i++)
+    {
+        for(var j=-1;j<=1;j++)
+        {
+            var offset = v1+vec2f(f32(i),f32(j));
+            let point = hash(cell + offset);
+            let diff = offset + point - frac;
+            let diff2 = diff - v2;
+            if(dot(diff2,diff2)>0.00001)
+            {
+                edge_dis = min(edge_dis,dot(0.5*(v2+diff),normalize(diff2)));
+            }
+        }
+    }
+    return vec2f(length(v2),edge_dis);
 }
