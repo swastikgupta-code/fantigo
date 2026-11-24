@@ -6,10 +6,12 @@ struct VertexOutput
 @fragment
 fn frag_main(input: VertexOutput) -> @location(0) vec4f
 {
-    var input_uv = input.ndc;
+    var input_uv = input.ndc*vec2f(1.7,1);
     var col = background(input_uv);
     var rect_col = vec4f(0.7,0.2,0.3,1.0);
-    col =  mix(col,rect_col,rectangle(1.0,1.0,1.0,1.0,input_uv));
+    var flower_col = vec4f(0.3,0.3,0.5,1.0);
+    col =  mix(col,rect_col,rectangle(0.8,0.2,0.4,0.1,input_uv));
+    col = mix(col,flower_col,flower(5,0.3,input_uv));
     return col;
 }
 fn background(uv: vec2f) -> vec4f
@@ -31,4 +33,11 @@ fn rectangle(x:f32,y:f32,width:f32,height:f32,uv:vec2f) -> f32
         return 1.0;
     }
     return 0.0;
+}
+fn flower(n: f32,amp: f32,uv: vec2f) -> f32
+{
+    var r = length(uv);
+    var a = atan2(uv.x,uv.y);
+    var f = amp*cos(n*a);
+    return 1.0-smoothstep(f-0.005,f+0.005,r);
 }
