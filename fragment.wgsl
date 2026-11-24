@@ -65,3 +65,20 @@ fn rotate(a: f32,uv: vec2f) -> vec2f
     var rot: mat2x2f = mat2x2(cos(a),sin(a),-sin(a),cos(a));
     return rot*uv;
 }
+fn hash(p: vec2f) -> vec2f
+{
+    var p3 = fract(vec3f(p.xyx)*vec3f(0.1301,0.1030,0.0973));
+    p3 += dot(p3,p3.yzx+33.33);
+    return fract((p3.xx + p3.yz)*p3.zy);
+}
+fn noise(p: vec2f) -> f32
+{
+    var i = floor(p);
+    var f = fract(p);
+    var u = f*f*(3.0-2.0*f);
+    var a = hash(i).x;
+    var b = hash(i+vec2f(1.0,0.0)).x;
+    var c = hash(i+vec2f(0.0,1.0)).x;
+    var d = hash(i+vec2f(1.0,1.0)).x;
+    return mix(mix(a,b,u.x),mix(c,d,u.x),u.y);
+}
