@@ -1,4 +1,5 @@
 let canvas,context,adapter,device;
+data = new Float32Array(8);
 async function init()
 {
     canvas = document.getElementById("gpucanvas");
@@ -47,5 +48,9 @@ async function init()
     renderPass.draw(6);
     renderPass.end();
     device.queue.submit([commandEncoder.finish()]);
+}
+function render()
+{
+    
 }
 init();
