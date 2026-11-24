@@ -1,5 +1,6 @@
-let canvas,context,adapter,device;
-data = new Float32Array(8);
+let canvas,context,adapter,device,pipeline;
+let data = new Float32Array(8);
+let last_time = 0.0;
 async function init()
 {
     canvas = document.getElementById("gpucanvas");
@@ -17,7 +18,7 @@ async function init()
     ]);
     vert_shader = device.createShaderModule({code: vert_shader});
     frag_shader = device.createShaderModule({code: frag_shader});
-    const pipeline = device.createRenderPipeline({
+    pipeline = device.createRenderPipeline({
         layout: "auto",
         vertex: {
             module: vert_shader,
@@ -32,6 +33,16 @@ async function init()
             topology: "triangle-list"
         }
     });
+    requestAnimationFrame(render);
+}
+function render(time)
+{
+    time = time * 0.001;
+    if(last_time==0.0) last_time = time;
+    let delta_time = time - last_time;
+    data[0] = canvas.width/canvas.height;
+    data[1] = 1.0;
+    data[2] = time;
     const commandEncoder = device.createCommandEncoder();
     const textureView = context.getCurrentTexture().createView();
     const renderPass = commandEncoder.beginRenderPass({
@@ -48,9 +59,7 @@ async function init()
     renderPass.draw(6);
     renderPass.end();
     device.queue.submit([commandEncoder.finish()]);
-}
-function render()
-{
-    
+    last_time=time;
+    requestAnimationFrame(render);
 }
 init();
