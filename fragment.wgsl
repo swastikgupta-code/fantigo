@@ -12,8 +12,8 @@ fn frag_main(input: VertexOutput) -> @location(0) vec4f
     var flower_col = vec4f(0.3,0.3,0.5,1.0);
     var polygon_col = vec4f(0.3,0.3,0.5,1.0);
     col =  mix(col,rect_col,rectangle(0.8,0.2,0.4,0.1,input_uv));
-    col = mix(col,flower_col,flower(vec2f(-0.1,0.2),5,0.3,input_uv));
-    col = mix(col,polygon_col,polygon(vec2f(-0.7,-0.4),5,0.3,input_uv));
+    col = mix(col,flower_col,flower(vec2f(-0.1,0.2),1.57,5,0.3,input_uv));
+    col = mix(col,polygon_col,polygon(vec2f(-0.7,-0.4),1.57,5,0.3,input_uv));
     return col;
 }
 fn background(uv: vec2f) -> vec4f
@@ -36,20 +36,25 @@ fn rectangle(x:f32,y:f32,width:f32,height:f32,uv:vec2f) -> f32
     }
     return 0.0;
 }
-fn flower(pos:vec2f,n: f32,amp: f32,uv: vec2f) -> f32
+fn flower(pos:vec2f,rot_angle: f32,n: f32,amp: f32,uv: vec2f) -> f32
 {
-    var f_uv = uv-pos;
+    var f_uv = rotate(rot_angle,uv-pos);
     var r = length(f_uv);
     var a = atan2(f_uv.x,f_uv.y);
     var f = amp*cos(n*a);
     return 1.0-smoothstep(f-0.005,f+0.005,r);
 }
-fn polygon(pos: vec2f,n: f32,amp: f32,uv: vec2f) -> f32
+fn polygon(pos: vec2f,rot_angle:f32,n: f32,amp: f32,uv: vec2f) -> f32
 {
-    var p_uv = uv-pos;
+    var p_uv = rotate(rot_angle,uv-pos);
     var r = length(p_uv);
     var a = atan2(p_uv.x,p_uv.y);
     var angle = 6.28318530718/n;
     var d = cos(floor(0.5+a/angle)*angle-a)*r-amp;
     return 1.0-smoothstep(-0.01,0.01,d);
+}
+fn rotate(a: f32,uv: vec2f) -> vec2f
+{
+    var rot: mat2x2f = mat2x2(cos(a),sin(a),-sin(a),cos(a));
+    return rot*uv;
 }
