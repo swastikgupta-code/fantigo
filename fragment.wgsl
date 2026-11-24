@@ -5,14 +5,15 @@ struct VertexOutput
 }
 struct Uniforms
 {
+    resolution: vec2f,
     time: f32,
-    resolution: vec2f
+    delta_time: f32
 }
 @group(0) @binding(0) var<uniform> u: Uniforms;
 @fragment
 fn frag_main(input: VertexOutput) -> @location(0) vec4f
 {
-    var input_uv = input.ndc;//*u.resolution;
+    var input_uv = input.ndc*u.resolution;
     var col = background(input_uv);
     var rect_col = vec4f(0.7,0.2,0.3,1.0);
     var flower_col = vec4f(0.3,0.3,0.5,1.0);

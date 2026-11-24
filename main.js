@@ -1,4 +1,4 @@
-let canvas,context,adapter,device,pipeline;
+let canvas,context,adapter,device,pipeline,UniformBuffer,bindGroup;
 let data = new Float32Array(8);
 let last_time = 0.0;
 async function init()
@@ -33,6 +33,19 @@ async function init()
             topology: "triangle-list"
         }
     });
+    UniformBuffer = device.createBuffer({
+        size: data.byteLength,
+        usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
+    });
+    bindGroup = device.createBindGroup({
+        layout: pipeline.getBindGroupLayout(0),
+        entries: [
+            {
+                binding: 0,
+                resource: {buffer: UniformBuffer}
+            }
+        ]
+    });
     requestAnimationFrame(render);
 }
 function render(time)
@@ -43,6 +56,8 @@ function render(time)
     data[0] = canvas.width/canvas.height;
     data[1] = 1.0;
     data[2] = time;
+    data[3] = delta_time;
+    device.queue.writeBuffer(UniformBuffer,0,data);
     const commandEncoder = device.createCommandEncoder();
     const textureView = context.getCurrentTexture().createView();
     const renderPass = commandEncoder.beginRenderPass({
@@ -56,6 +71,7 @@ function render(time)
         ]
     });
     renderPass.setPipeline(pipeline);
+    renderPass.setBindGroup(0,bindGroup);
     renderPass.draw(6);
     renderPass.end();
     device.queue.submit([commandEncoder.finish()]);
