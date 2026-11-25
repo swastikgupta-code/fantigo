@@ -156,7 +156,20 @@ fn platformer(uv: vec2f) -> vec4f
     var meetup = wall_half_h-tophalf_h;
     var top_cen = vec2f(skewx,wall_half_h);
     var dis_top = sd_top(uv-top_cen,half_w,tophalf_h,skewx);
-    var dis_block = min(dis_top,d_wall);
+    var dist = min(dis_top,d_wall);
     var col = vec3f(0.07,0.09,0.08);
+    var gap = 0.004;
+    if(dist<gap)
+    {
+        var g_noise1 = noise(uv*14.0);
+        var g_noise2 = noise(uv*32.0);
+        var g_noise = g_noise1 * 0.7 + g_noise2 * 0.3;
+        var grass_dark = vec3f(0.14,0.34,0.05);
+        var grass_mid = vec3f(0.28,0.56,0.08);
+        var grass_light = vec3f(0.48,0.76,0.14);
+        var grass_col = mix(grass_dark,grass_mid,smoothstep(0.2,0.6,g_noise));
+        grass_col = mix(grass_col,grass_light,smoothstep(0.6,0.9,g_noise));;
+        col = mix(grass_col,col,smoothstep(0.0,gap,dist));
+    }
     return vec4f(col,1.0);
 }
