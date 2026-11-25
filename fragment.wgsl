@@ -148,9 +148,15 @@ fn platformer(uv: vec2f) -> vec4f
 {
     var p_uv = uv;
     var half_w = 0.65;
-    var wall_half_w = 0.28;
+    var wall_half_h = 0.28;
     var tophalf_h = 0.07;
     var skewx = 0.08;
     var wall_center = vec2f(0.0,-tophalf_h);
-    return vec4f(0,0,0,1);
+    var d_wall = sd_bottom(uv-wall_center,vec2f(half_w,wall_half_h));
+    var meetup = wall_half_h-tophalf_h;
+    var top_cen = vec2f(skewx,wall_half_h);
+    var dis_top = sd_top(uv-top_cen,half_w,tophalf_h,skewx);
+    var dis_block = min(dis_top,d_wall);
+    var col = vec3f(0.07,0.09,0.08);
+    return vec4f(col,1.0);
 }
