@@ -21,7 +21,8 @@ fn frag_main(input: VertexOutput) -> @location(0) vec4f
     col =  mix(col,rect_col,rectangle(0.8,0.2,0.4,0.1,input_uv));
     col = mix(col,flower_col,flower(vec2f(-0.1,0.2),1.57,5,0.3,input_uv));
     col = mix(col,polygon_col,polygon(vec2f(-0.7,-0.4),1.57,5,0.3,input_uv));
-    col = platformer(input_uv);
+    var p_col = platformer(input_uv);
+    col = mix(col,p_col,p_col.a);
     return col;
 }
 fn background(uv: vec2f) -> vec4f
@@ -158,6 +159,7 @@ fn platformer(uv: vec2f) -> vec4f
     var dis_top = sd_top(uv-top_cen,half_w,tophalf_h,skewx);
     var dist = min(dis_top,d_wall);
     var col = vec3f(0.07,0.09,0.08);
+    var alpha = 0.0;
     var gap = 0.004;
     if(dist<gap)
     {
@@ -170,6 +172,7 @@ fn platformer(uv: vec2f) -> vec4f
         var grass_col = mix(grass_dark,grass_mid,smoothstep(0.2,0.6,g_noise));
         grass_col = mix(grass_col,grass_light,smoothstep(0.6,0.9,g_noise));;
         col = mix(grass_col,col,smoothstep(0.0,gap,dist));
+        alpha = 1.0;
     }
-    return vec4f(col,1.0);
+    return vec4f(col,alpha);
 }
