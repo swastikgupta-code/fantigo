@@ -21,6 +21,7 @@ fn frag_main(input: VertexOutput) -> @location(0) vec4f
     col =  mix(col,rect_col,rectangle(0.8,0.2,0.4,0.1,input_uv));
     col = mix(col,flower_col,flower(vec2f(-0.1,0.2),1.57,5,0.3,input_uv));
     col = mix(col,polygon_col,polygon(vec2f(-0.7,-0.4),1.57,5,0.3,input_uv));
+    col = platformer(input_uv);
     return col;
 }
 fn background(uv: vec2f) -> vec4f
@@ -121,4 +122,35 @@ fn voronoi_cracks(p: vec2f) -> vec2f
         }
     }
     return vec2f(length(v2),edge_dis);
+}
+fn sd_bottom(p: vec2f,cen: vec2f) -> f32
+{
+    var d = abs(p) - cen;
+    return length(max(d,vec2f(0.0))) + min(max(d.x,d.y),0.0);
+}
+fn sd_top(p: vec2f,width: f32,height: f32,skew: f32) -> f32
+{
+    var slant = vec2f(skew,height);
+    var point = select(p,-p,p.y<0.0);
+    var dis_top = point-slant;
+    dis_top.x -= clamp(dis_top.x,-width,width);
+    var closest = vec2f(dot(dis_top,dis_top),-dis_top.y);
+    var cross = point.x*slant.y-slant.x*point.y;
+    point = select(point,-point,cross<0.0);
+    var dist_side = point - vec2f(width,0.0);
+    var t = clamp(dot(dist_side,slant)/dot(slant,slant),-1.0,1.0);
+    dist_side -= slant*t;
+    var side = vec2f(dot(dist_side,dist_side),height*width-abs(cross));
+    closest = min(closest,side);
+    return sqrt(closest.x)*sign(-closest.y);
+}
+fn platformer(uv: vec2f) -> vec4f
+{
+    var p_uv = uv;
+    var half_w = 0.65;
+    var wall_half_w = 0.28;
+    var tophalf_h = 0.07;
+    var skewx = 0.08;
+    var wall_center = vec2f(0.0,-tophalf_h);
+    return vec4f(0,0,0,1);
 }
