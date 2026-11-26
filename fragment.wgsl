@@ -173,13 +173,24 @@ fn platformer(uv: vec2f) -> vec4f
         grass_col = mix(grass_col,grass_light,smoothstep(0.6,0.9,g_noise));;
         col = mix(grass_col,col,smoothstep(0.0,gap,dist));
         alpha = 1.0;
-        if(dis_top<=0.0)
+        if(dis_top<=0.01)
         {
             var top_uv = vec2f(uv.x,uv.y*2.5)*16.0;
             var top_noise = noise(top_uv)*0.6+noise(top_uv*2.2)*0.4;
             col = mix(grass_mid,grass_light,top_noise);
             var front_edge_dis = uv.y - meetup;
             col += vec3f(0.12,0.16,0.04) * (1.0-smoothstep(0.0,0.025,front_edge_dis));
+        }
+        else 
+        {
+            var rock_uv = uv*6.0;
+            var vor = voronoi_cracks(rock_uv);
+            var crack_col = vec3f(0.08,0.09,0.04);
+            var stone_dark = vec3f(0.24,0.25,0.11);
+            var stone_light = vec3f(0.42,0.41,0.18);
+            var rock_col = mix(stone_light,stone_dark,smoothstep(0.1,0.65,vor.x));
+            rock_col = mix(crack_col,rock_col,smoothstep(0.02,0.12,vor.y));
+            col = rock_col;
         }
     }
     return vec4f(col,alpha);
