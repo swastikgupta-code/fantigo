@@ -1,6 +1,40 @@
+class Vec
+{
+    constructor(x,y)
+    {
+        this.x = x;
+        this.y = y;
+        this.length = Math.sqrt(x**2+y**2);
+    }
+    add(v)
+    {
+        return new Vec(this.x+v.x,this.y+v.y);
+    }
+    sub(v)
+    {
+        return new Vec(this.x-v.x,this.y-v.y);
+    }
+    mul(v)
+    {
+        return new Vec(this.x*v.x,this.y*v.y);
+    }
+    div(v)
+    {
+        return new Vec(this.x/v.x,this.y/v.y);
+    }
+    dot(v)
+    {
+        return (this.x*v.x+this.y*v.y);
+    }
+    cross(v)
+    {
+        return this.x*v.y-this.y*v.x;
+    }
+}
 let canvas,context,adapter,device,pipeline,UniformBuffer,bindGroup;
 let data = new Float32Array(8);
 let last_time = 0.0;
+let mouse = new Vec(0.0,0.0);
 async function init()
 {
     canvas = document.getElementById("gpucanvas");
@@ -57,6 +91,8 @@ function render(time)
     data[1] = 1.0;
     data[2] = time;
     data[3] = delta_time;
+    data[4] = mouse.x;
+    data[5] = mouse.y;
     device.queue.writeBuffer(UniformBuffer,0,data);
     const commandEncoder = device.createCommandEncoder();
     const textureView = context.getCurrentTexture().createView();
@@ -78,37 +114,8 @@ function render(time)
     last_time=time;
     requestAnimationFrame(render);
 }
-class Vec
-{
-    constructor(x,y)
-    {
-        this.x = x;
-        this.y = y;
-        this.length = Math.sqrt(x**2+y**2);
-    }
-    add(v)
-    {
-        return new Vec(this.x+v.x,this.y+v.y);
-    }
-    sub(v)
-    {
-        return new Vec(this.x-v.x,this.y-v.y);
-    }
-    mul(v)
-    {
-        return new Vec(this.x*v.x,this.y*v.y);
-    }
-    div(v)
-    {
-        return new Vec(this.x/v.x,this.y/v.y);
-    }
-    dot(v)
-    {
-        return (this.x*v.x+this.y*v.y);
-    }
-    cross(v)
-    {
-        return this.x*v.y-this.y*v.x;
-    }
-}
+document.addEventListener("mousemove",(event)=>{
+    mouse.x = event.clientX/window.innerWidth*2.0-1.0;
+    mouse.y = event.clientY/window.innerHeight*2.0-1.0;
+});
 init();

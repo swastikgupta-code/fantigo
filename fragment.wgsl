@@ -7,7 +7,8 @@ struct Uniforms
 {
     aspect: vec2f,
     time: f32,
-    delta_time: f32
+    delta_time: f32,
+    mouse: vec2f
 }
 @group(0) @binding(0) var<uniform> u: Uniforms;
 @fragment
