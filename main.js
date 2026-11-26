@@ -44,20 +44,20 @@ class Vec
 }
 class Colliders
 {
-    is_inside_rect(p,b)
+    static is_inside_rect(p,b)
     {
         let d = p.abs().sub(b.abs());
         return (d.x<=0.0 && d.y<=0.0);
     }
-    is_inside_para(p,width,height,skew)
+    static is_inside_para(p,width,height,skew)
     {
         return (Math.abs(p.y)<=height) && (Math.abs(p.x*height-p.y*skew)<=width*height);
     }
-    is_inside_circle(p,r)
+    static is_inside_circle(p,r)
     {
         return p.length<=r;
     }
-    is_inside_capsule(p,a,b,r)
+    static is_inside_capsule(p,a,b,r)
     {
         let line = b.sub(a);
         let point = p.sub(a);
@@ -128,6 +128,14 @@ function render(time)
     data[3] = delta_time;
     data[4] = mouse.x;
     data[5] = mouse.y;
+    if(Colliders.is_inside_rect(mouse.sub(new Vec(0.0,-0.07)),new Vec(0.65,0.28)) || Colliders.is_inside_para(mouse.sub(new Vec(0.08,0.28)),0.65,0.07,0.08))
+    {
+        document.title = "inside the rectangle";
+    }
+    else
+    {
+        document.title = "outside the rectangle";
+    }
     device.queue.writeBuffer(UniformBuffer,0,data);
     const commandEncoder = device.createCommandEncoder();
     const textureView = context.getCurrentTexture().createView();
@@ -150,7 +158,8 @@ function render(time)
     requestAnimationFrame(render);
 }
 document.addEventListener("mousemove",(event)=>{
-    mouse.x = event.clientX/window.innerWidth*2.0-1.0;
+    const aspect = window.innerWidth/window.innerHeight;
+    mouse.x = (event.clientX/window.innerWidth*2.0-1.0)*aspect;
     mouse.y = event.clientY/window.innerHeight*2.0-1.0;
 });
 init();
