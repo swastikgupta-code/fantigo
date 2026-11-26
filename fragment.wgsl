@@ -173,6 +173,14 @@ fn platformer(uv: vec2f) -> vec4f
         grass_col = mix(grass_col,grass_light,smoothstep(0.6,0.9,g_noise));;
         col = mix(grass_col,col,smoothstep(0.0,gap,dist));
         alpha = 1.0;
+        if(dis_top<=0.0)
+        {
+            var top_uv = vec2f(uv.x,uv.y*2.5)*16.0;
+            var top_noise = noise(top_uv)*0.6+noise(top_uv*2.2)*0.4;
+            col = mix(grass_mid,grass_light,top_noise);
+            var front_edge_dis = uv.y - meetup;
+            col += vec3f(0.12,0.16,0.04) * (1.0-smoothstep(0.0,0.025,front_edge_dis));
+        }
     }
     return vec4f(col,alpha);
 }
