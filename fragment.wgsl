@@ -190,7 +190,19 @@ fn platformer(uv: vec2f) -> vec4f
             var stone_light = vec3f(0.42,0.41,0.18);
             var rock_col = mix(stone_light,stone_dark,smoothstep(0.1,0.65,vor.x));
             rock_col = mix(crack_col,rock_col,smoothstep(0.02,0.12,vor.y));
-            col = rock_col;
+            var frong_edge_dis = meetup - uv.y;
+            var wave = noise(vec2f(uv.x*18.0,2.0))*0.055 + noise(vec2f(uv.x*45.0,5.0))*0.02;
+            var thickness = 0.045+wave;
+            if(frong_edge_dis<thickness)
+            {
+                var shadow = smoothstep(thickness,thickness-0.025,frong_edge_dis);
+                col = grass_col * mix(0.45,1.0,shadow);
+            }
+            else
+            {
+                var grass_shadow = smoothstep(thickness,thickness+0.06,frong_edge_dis);
+                col = rock_col * mix(0.45,1.0,grass_shadow);
+            }
         }
     }
     return vec4f(col,alpha);
