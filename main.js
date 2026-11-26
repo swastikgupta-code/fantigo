@@ -78,4 +78,37 @@ function render(time)
     last_time=time;
     requestAnimationFrame(render);
 }
+class Vec
+{
+    constructor(x,y)
+    {
+        this.x = x;
+        this.y = y;
+        this.length = Math.sqrt(x**2+y**2);
+    }
+    add(v)
+    {
+        return new Vec(this.x+v.x,this.y+v.y);
+    }
+    sub(v)
+    {
+        return new Vec(this.x-v.x,this.y-v.y);
+    }
+    mul(v)
+    {
+        return new Vec(this.x*v.x,this.y*v.y);
+    }
+    div(v)
+    {
+        return new Vec(this.x/v.x,this.y/v.y);
+    }
+    dot(v)
+    {
+        return (this.x*v.x+this.y*v.y);
+    }
+    cross(v)
+    {
+        return this.x*v.y-this.y*v.x;
+    }
+}
 init();
