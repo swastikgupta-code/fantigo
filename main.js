@@ -4,7 +4,10 @@ class Vec
     {
         this.x = x;
         this.y = y;
-        this.length = Math.sqrt(x**2+y**2);
+    }
+    get length()
+    {
+        return Math.hypot(this.x,this.y)
     }
     add(v)
     {
@@ -34,6 +37,10 @@ class Vec
     {
         return new Vec(Math.abs(this.x),Math.abs(this.y));
     }
+    scale(s)
+    {
+        return new Vec(this.x*s,this.y*s);
+    }
 }
 class Colliders
 {
@@ -44,8 +51,7 @@ class Colliders
     }
     is_inside_para(p,width,height,skew)
     {
-        if(p.y<0.0) p.y = -p;
-        return (p.y<=height) && ((p.x-width)*height<=p.y*skew);
+        return (Math.abs(p.y)<=height) && (Math.abs(p.x*height-p.y*skew)<=width*height);
     }
     is_inside_circle(p,r)
     {
@@ -55,8 +61,8 @@ class Colliders
     {
         let line = b.sub(a);
         let point = p.sub(a);
-        let t = Math.min(Math.max(point.dot(line)/line.dot(line),0.0),1.0);
-        let closest = point - line*t;
+        let t = Math.min(Math.max(point.dot(line)/line.dot(line),0.0),1.0) || 0.0;
+        let closest = point.sub(line.scale(t));
         return closest.length<=r;
     }
 }
