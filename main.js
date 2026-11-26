@@ -30,6 +30,35 @@ class Vec
     {
         return this.x*v.y-this.y*v.x;
     }
+    abs()
+    {
+        return new Vec(Math.abs(this.x),Math.abs(this.y));
+    }
+}
+class Colliders
+{
+    is_inside_rect(p,b)
+    {
+        let d = p.abs().sub(b.abs());
+        return (d.x<=0.0 && d.y<=0.0);
+    }
+    is_inside_para(p,width,height,skew)
+    {
+        if(p.y<0.0) p.y = -p;
+        return (p.y<=height) && ((p.x-width)*height<=p.y*skew);
+    }
+    is_inside_circle(p,r)
+    {
+        return p.length<=r;
+    }
+    is_inside_capsule(p,a,b,r)
+    {
+        let line = b.sub(a);
+        let point = p.sub(a);
+        let t = Math.min(Math.max(point.dot(line)/line.dot(line),0.0),1.0);
+        let closest = point - line*t;
+        return closest.length<=r;
+    }
 }
 let canvas,context,adapter,device,pipeline,UniformBuffer,bindGroup;
 let data = new Float32Array(8);
