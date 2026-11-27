@@ -8,7 +8,8 @@ struct Uniforms
     aspect: vec2f,
     time: f32,
     delta_time: f32,
-    mouse: vec2f
+    mouse: vec2f,
+    player: vec2f
 }
 @group(0) @binding(0) var<uniform> u: Uniforms;
 @fragment
@@ -19,7 +20,9 @@ fn frag_main(input: VertexOutput) -> @location(0) vec4f
     var rect_col = vec4f(0.7,0.2,0.3,1.0);
     var flower_col = vec4f(0.3,0.3,0.5,1.0);
     var polygon_col = vec4f(0.3,0.3,0.5,1.0);
-    col = mix(col,polygon_col,capsule(vec2f(-0.5,0.3),1.00,0.2,0.6,input_uv));
+    var platformer_col = platformer(input_uv);
+    col = mix(col,flower_col,capsule(u.player,0.0,0.2,0.6,input_uv));
+    col = mix(col,platformer_col,platformer_col.a);
     return col;
 }
 fn background(uv: vec2f) -> vec4f

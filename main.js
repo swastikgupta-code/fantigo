@@ -43,11 +43,15 @@ class Vec
     }
     static min(v1,v2)
     {
-        return new Vec(Math.min(v1.x,v2.x),Math.max(v1.y,v2.y));
+        return new Vec(Math.min(v1.x,v2.x),Math.min(v1.y,v2.y));
     }
     static max(v1,v2)
     {
-        return new Vec(Math.min(v1.x,v2.x),Math.max(v1.y,v2.y));
+        return new Vec(Math.max(v1.x,v2.x),Math.max(v1.y,v2.y));
+    }
+    static mix(v1,v2,t)
+    {
+        return new Vec(v1.x*(1.0-t)+v2.x*t,v1.y*(1.0-t)+v2.y*t);
     }
 }
 class Colliders
@@ -79,16 +83,18 @@ class Sdf
     static para(p,width,height,skew)
     {
         var slant = new Vec(skew,height);
-        var point = new Vec(p.x,Math.abs(p.y));
+        var point = new Vec(p.x,p.y);
+        if(point.y<0.0)
+            point = point.scale(-1.0);
         var dis_top = point.sub(slant);
         dis_top.x -= Math.min(Math.max(dis_top.x,-width),width);
         var closest = new Vec(dis_top.dot(dis_top),-dis_top.y);
         var cross = point.x*slant.y-slant.x*point.y;
-        if(corss<0.0)
+        if(cross<0.0)
             point = point.scale(-1.0);
         var dist_side = new Vec(point.x-width,point.y);
         var t = Math.min(Math.max(dist_side.dot(slant)/slant.dot(slant),-1.0),1.0);
-        dist_side = dist_side.sub(dist_scale(slant.scale(t)));
+        dist_side = dist_side.sub(slant.scale(t));
         var side = new Vec(dist_side.dot(dist_side),height*width-Math.abs(cross));
         closest = Vec.min(closest,side);
         return Math.sqrt(closest.x)*Math.sign(-closest.y);
@@ -99,7 +105,7 @@ class Player
     constructor(pos,r,h)
     {
         this.pos = pos;
-        this.vel = new Vec(0.0,0.0);
+        this.vel = new Vec(1.0,0.0);
         this.rad = r;
         this.height = h;
     }
@@ -118,8 +124,8 @@ class Player
         let inv_phi = 0.61803398875;
         let c = t1 - inv_phi*(t1-t0);
         let d = t0 + inv_phi*(t1-t0);
-        let sdfc = Sdf.para(c,width,height,skew);
-        let sdfd = Sdf.para(d,width,height,skew);
+        let sdfc = Sdf.para(Vec.mix(pa,pb,c),width,height,skew);
+        let sdfd = Sdf.para(Vec.mix(pa,pb,d),width,height,skew);
         for(var i = 0;i<15;i++)
         {
             if(sdfc<sdfd)
@@ -128,7 +134,7 @@ class Player
                 d=c;
                 sdfd = sdfc;
                 c = t1 - inv_phi*(t1-t0);
-                sdfc = Sdf.para(c,width,height,skew);
+                sdfc = Sdf.para(Vec.mix(pa,pb,c),width,height,skew);
             }
             else
             {
@@ -136,7 +142,7 @@ class Player
                 c=d;
                 sdfc = sdfd;
                 d = t0 + inv_phi*(t1-t0);
-                sdfd = Sdf.para(d,width,height,skew);
+                sdfd = Sdf.para(Vec.mix(pa,pb,d),width,height,skew);
             }
         }
         return Math.min(sdfc,sdfd) < r;
@@ -145,11 +151,16 @@ class Player
     {
         return this.is_colliding_para(cen,width,height,0.0);
     }
+    move(delta_time)
+    {
+        this.pos = this.pos.add(this.vel.scale(delta_time));
+    }
 }
 let canvas,context,adapter,device,pipeline,UniformBuffer,bindGroup;
-let data = new Float32Array(8);
+let data = new Float32Array(16);
 let last_time = 0.0;
 let mouse = new Vec(0.0,0.0);
+let player = new Player(new Vec(-1.0,0.0),0.2,0.6);
 async function init()
 {
     canvas = document.getElementById("gpucanvas");
@@ -208,6 +219,9 @@ function render(time)
     data[3] = delta_time;
     data[4] = mouse.x;
     data[5] = mouse.y;
+    data[6] = player.pos.x;
+    data[7] = player.pos.y;
+    player.move(delta_time);
     if(Colliders.is_inside_rect(mouse.sub(new Vec(0.0,-0.07)),new Vec(0.65,0.28)) || Colliders.is_inside_para(mouse.sub(new Vec(0.08,0.28)),0.65,0.07,0.08))
     {
         document.title = "inside the rectangle";
