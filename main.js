@@ -103,14 +103,10 @@ class Player
         this.rad = r;
         this.height = h;
     }
-    is_colliding()
+    is_colliding_para(cen,width,height,skew)
     {
         let a = new Vec(this.pos.x,this.pos.y-this.height*0.5);
         let b = new Vec(this.pos.x,this.pos.y+this.height*0.5);
-        let cen = new Vec(0.08,0.28);
-        let width = 0.65;
-        let height = 0.07;
-        let skew = 0.08;
         let pa = cen.sub(a);
         let pb = cen.sub(b);
         if(Colliders.is_inside_para(pa,width,height,skew) || Colliders.is_inside_para(pb,width,height,skew))
@@ -144,6 +140,10 @@ class Player
             }
         }
         return Math.min(sdfc,sdfd) < r;
+    }
+    is_colliding_rect(cen,width,height)
+    {
+        return this.is_colliding_para(cen,width,height,0.0);
     }
 }
 let canvas,context,adapter,device,pipeline,UniformBuffer,bindGroup;
