@@ -117,7 +117,33 @@ class Player
         {
             return true;
         }
-
+        let t0 = 0.0;
+        let t1 = 1.0;
+        let inv_phi = 0.61803398875;
+        let c = t1 - inv_phi*(t1-t0);
+        let d = t0 + inv_phi*(t1-t0);
+        let sdfc = Sdf.para(c,width,height,skew);
+        let sdfd = Sdf.para(d,width,height,skew);
+        for(var i = 0;i<15;i++)
+        {
+            if(sdfc<sdfd)
+            {
+                t1 = d;
+                d=c;
+                sdfd = sdfc;
+                c = t1 - inv_phi*(t1-t0);
+                sdfc = Sdf.para(c,width,height,skew);
+            }
+            else
+            {
+                t0 = c;
+                c=d;
+                sdfc = sdfd;
+                d = t0 + inv_phi*(t1-t0);
+                sdfd = Sdf.para(d,width,height,skew);
+            }
+        }
+        return Math.min(sdfc,sdfd) < r;
     }
 }
 let canvas,context,adapter,device,pipeline,UniformBuffer,bindGroup;
