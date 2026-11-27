@@ -19,11 +19,7 @@ fn frag_main(input: VertexOutput) -> @location(0) vec4f
     var rect_col = vec4f(0.7,0.2,0.3,1.0);
     var flower_col = vec4f(0.3,0.3,0.5,1.0);
     var polygon_col = vec4f(0.3,0.3,0.5,1.0);
-    col =  mix(col,rect_col,rectangle(0.8,0.2,0.4,0.1,input_uv));
-    col = mix(col,flower_col,flower(vec2f(-0.1,0.2),1.57,5,0.3,input_uv));
-    col = mix(col,polygon_col,polygon(vec2f(-0.7,-0.4),1.57,5,0.3,input_uv));
-    var p_col = platformer(input_uv);
-    col = mix(col,p_col,p_col.a);
+    col = mix(col,polygon_col,capsule(vec2f(-0.5,0.3),1.00,0.2,0.6,input_uv));
     return col;
 }
 fn background(uv: vec2f) -> vec4f
@@ -62,6 +58,15 @@ fn polygon(pos: vec2f,rot_angle:f32,n: f32,amp: f32,uv: vec2f) -> f32
     var angle = 6.28318530718/n;
     var d = cos(floor(0.5+a/angle)*angle-a)*r-amp;
     return 1.0-smoothstep(-0.01,0.01,d);
+}
+fn capsule(pos: vec2f,rot_angle:f32,r: f32,height: f32,uv: vec2f) -> f32
+{
+    var c_uv = rotate(rot_angle,uv-pos);
+    var line = vec2f(0.0,height);
+    var p = vec2f(0.0,height*0.5) + c_uv;
+    var t = clamp(dot(p,line)/dot(line,line),0.0,1.0);
+    var sd = length(p - t*line) - r;
+    return 1.0 - smoothstep(-0.01,0.01,sd);
 }
 fn rotate(a: f32,uv: vec2f) -> vec2f
 {
