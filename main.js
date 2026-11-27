@@ -41,6 +41,14 @@ class Vec
     {
         return new Vec(this.x*s,this.y*s);
     }
+    static min(v1,v2)
+    {
+        return new Vec(Math.min(v1.x,v2.x),Math.max(v1.y,v2.y));
+    }
+    static max(v1,v2)
+    {
+        return new Vec(Math.min(v1.x,v2.x),Math.max(v1.y,v2.y));
+    }
 }
 class Colliders
 {
@@ -64,6 +72,52 @@ class Colliders
         let t = Math.min(Math.max(point.dot(line)/line.dot(line),0.0),1.0) || 0.0;
         let closest = point.sub(line.scale(t));
         return closest.length<=r;
+    }
+}
+class Sdf
+{
+    static para(p,width,height,skew)
+    {
+        var slant = new Vec(skew,height);
+        var point = new Vec(p.x,Math.abs(p.y));
+        var dis_top = point.sub(slant);
+        dis_top.x -= Math.min(Math.max(dis_top.x,-width),width);
+        var closest = new Vec(dis_top.dot(dis_top),-dis_top.y);
+        var cross = point.x*slant.y-slant.x*point.y;
+        if(corss<0.0)
+            point = point.scale(-1.0);
+        var dist_side = new Vec(point.x-width,point.y);
+        var t = Math.min(Math.max(dist_side.dot(slant)/slant.dot(slant),-1.0),1.0);
+        dist_side = dist_side.sub(dist_scale(slant.scale(t)));
+        var side = new Vec(dist_side.dot(dist_side),height*width-Math.abs(cross));
+        closest = Vec.min(closest,side);
+        return Math.sqrt(closest.x)*Math.sign(-closest.y);
+    }
+}
+class Player
+{
+    constructor(pos,r,h)
+    {
+        this.pos = pos;
+        this.vel = new Vec(0.0,0.0);
+        this.rad = r;
+        this.height = h;
+    }
+    is_colliding()
+    {
+        let a = new Vec(this.pos.x,this.pos.y-this.height*0.5);
+        let b = new Vec(this.pos.x,this.pos.y+this.height*0.5);
+        let cen = new Vec(0.08,0.28);
+        let width = 0.65;
+        let height = 0.07;
+        let skew = 0.08;
+        let pa = cen.sub(a);
+        let pb = cen.sub(b);
+        if(Colliders.is_inside_para(pa,width,height,skew) || Colliders.is_inside_para(pb,width,height,skew))
+        {
+            return true;
+        }
+
     }
 }
 let canvas,context,adapter,device,pipeline,UniformBuffer,bindGroup;
