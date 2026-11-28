@@ -221,7 +221,7 @@ function render(time)
     data[5] = mouse.y;
     data[6] = player.pos.x;
     data[7] = player.pos.y;
-    player.move(delta_time);
+    player.pos = mouse;
     if(player.is_colliding_rect(new Vec(0.0,-0.07),0.65,0.28) || player.is_colliding_para(new Vec(0.08,0.28),0.65,0.07,0.08))
     {
         document.title = "inside the rectangle";
@@ -254,6 +254,6 @@ function render(time)
 document.addEventListener("mousemove",(event)=>{
     const aspect = window.innerWidth/window.innerHeight;
     mouse.x = (event.clientX/window.innerWidth*2.0-1.0)*aspect;
-    mouse.y = event.clientY/window.innerHeight*2.0-1.0;
+    mouse.y = -(event.clientY/window.innerHeight*2.0-1.0);
 });
 init();
