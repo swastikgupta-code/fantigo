@@ -31,11 +31,12 @@ fn frag_main(input: VertexOutput) -> @location(0) vec4f
     {
         var p = ro + rd*t;
         var d = hero(p);
-        if(d.x<0.001)
+        if(d<0.001)
         {
-
+            col = vec4f(0.13,0.54,0.84,1.0);
+            return col;
         }
-        t += d.x;
+        t += d;
     }
     return col;
 }
@@ -243,9 +244,9 @@ fn platformer(uv: vec2f) -> vec4f
     }
     return vec4f(col,alpha);
 }
-fn hero(uv: vec3f) -> vec2f
+fn hero(p: vec3f) -> f32
 {
-    var h_uv = uv;
+    var h_uv = p;
     var torso = sd_capsule(vec3f(0.0,-0.14,0.0),vec3f(0.0,0.21,0.0),0.13,h_uv);
-    return vec2f(0.0);
+    return torso;
 }
