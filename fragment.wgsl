@@ -23,7 +23,20 @@ fn frag_main(input: VertexOutput) -> @location(0) vec4f
     var platformer_col = platformer(input_uv);
     var ro = vec3f(0.55,0.05,2.45);
     var rd = normalize(vec3f(input_uv*0.56,-1.0));
-    
+    var rdXZ = rot_mat(0.22) * rd.xz;
+    rd.x = rdXZ.x;
+    rd.z = rdXZ.y;
+    var t = 0.0;
+    for(var i = 0;i<64;i++)
+    {
+        var p = ro + rd*t;
+        var d = hero(p);
+        if(d.x<0.001)
+        {
+
+        }
+        t += d.x;
+    }
     return col;
 }
 fn background(uv: vec2f) -> vec4f
