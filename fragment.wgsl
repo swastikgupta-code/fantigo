@@ -21,8 +21,9 @@ fn frag_main(input: VertexOutput) -> @location(0) vec4f
     var flower_col = vec4f(0.3,0.3,0.5,1.0);
     var polygon_col = vec4f(0.3,0.3,0.5,1.0);
     var platformer_col = platformer(input_uv);
-    col = mix(col,flower_col,capsule(u.player,0.0,0.2,0.6,input_uv));
-    col = mix(col,platformer_col,platformer_col.a);
+    var ro = vec3f(0.55,0.05,2.45);
+    var rd = normalize(vec3f(input_uv*0.56,-1.0));
+    
     return col;
 }
 fn background(uv: vec2f) -> vec4f
@@ -71,10 +72,23 @@ fn capsule(pos: vec2f,rot_angle:f32,r: f32,height: f32,uv: vec2f) -> f32
     var sd = length(p - t*line) - r;
     return 1.0 - smoothstep(-0.01,0.01,sd);
 }
+fn sd_capsule(a: vec3f,b:vec3f,r: f32,uv: vec3f) -> f32
+{
+    var line = b-a;
+    var p = uv - a;
+    var t = clamp(dot(p,line)/dot(line,line),0.0,1.0);
+    var sd = length(p - t*line) - r;
+    return sd;
+}
 fn rotate(a: f32,uv: vec2f) -> vec2f
 {
     var rot: mat2x2f = mat2x2(cos(a),sin(a),-sin(a),cos(a));
     return rot*uv;
+}
+fn rot_mat(a: f32) -> mat2x2f
+{
+    var rot: mat2x2f = mat2x2(cos(a),sin(a),-sin(a),cos(a));
+    return rot;
 }
 fn hash(p: vec2f) -> vec2f
 {
@@ -215,4 +229,10 @@ fn platformer(uv: vec2f) -> vec4f
         }
     }
     return vec4f(col,alpha);
+}
+fn hero(uv: vec3f) -> vec2f
+{
+    var h_uv = uv;
+    var torso = sd_capsule(vec3f(0.0,-0.14,0.0),vec3f(0.0,0.21,0.0),0.13,h_uv);
+    return vec2f(0.0);
 }
