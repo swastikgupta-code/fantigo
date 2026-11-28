@@ -145,7 +145,7 @@ class Player
                 sdfd = Sdf.para(Vec.mix(pa,pb,d),width,height,skew);
             }
         }
-        return Math.min(sdfc,sdfd) < r;
+        return Math.min(sdfc,sdfd) < this.rad;
     }
     is_colliding_rect(cen,width,height)
     {
@@ -222,7 +222,7 @@ function render(time)
     data[6] = player.pos.x;
     data[7] = player.pos.y;
     player.move(delta_time);
-    if(Colliders.is_inside_rect(mouse.sub(new Vec(0.0,-0.07)),new Vec(0.65,0.28)) || Colliders.is_inside_para(mouse.sub(new Vec(0.08,0.28)),0.65,0.07,0.08))
+    if(player.is_colliding_rect(new Vec(0.0,-0.07),0.65,0.28) || player.is_colliding_para(new Vec(0.08,0.28),0.65,0.07,0.08))
     {
         document.title = "inside the rectangle";
     }
